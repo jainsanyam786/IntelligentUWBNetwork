@@ -1,8 +1,11 @@
 function delayComputationAndComparison()
+
 differArray = zeros(3,11);
 delayArray = zeros(3,11);
 
-snrValues = -30:5:20;
+snrValues = -30:5:25;
+
+DataRate = 1000;
 
 %creating data for random sequence [1 1 -1 1 1 -1 ....]
 dataToTransmitRN = ones(13,1);
@@ -27,7 +30,7 @@ figure();
     subplot(3,1,1);
     tx = 1000 * (0: length(dataToTransmitRN) - 1) / DataRate;
     stem(tx,dataToTransmitRN);
-    title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 16)");
+    title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 13)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
     
@@ -41,7 +44,7 @@ figure();
     subplot(3,1,3);
     tx = 1000 * (0: length(dataToTransmitPN) - 1) / DataRate;
     stem(tx,dataToTransmitPN);
-    title("PN sequence (Symbols = 16)");
+    title("PN sequence (Symbols = 13)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
     
@@ -49,24 +52,49 @@ figure();
 
 
 for  i  = 1:1:3
-    for j = 1:1:length(snrvalues)
+    for j = 1:1:length(snrValues)
+        if j==12
+           snrValues(j)=inf; 
+        end
         if (i==1)
-            outPut = computeDelay("Random [ 1 1 -1]",dataToTransmitRN,snrValues(j));
+            outPut = computeDelay("Random [ 1 1 -1] ",dataToTransmitRN,snrValues(j));
             differArray(i,j) = outPut(1);
             delayArray(i,j) = outPut(2);
             
         elseif (i==2)
-            outPut = computeDelay("Barker Code",dataToTransmitBR,snrValues(j));
+            outPut = computeDelay("Barker Code ",dataToTransmitBR,snrValues(j));
             differArray(i,j) = outPut(1);
             delayArray(i,j) = outPut(2);
             
         elseif (i==3)
-            outPut = computeDelay("PN Code",dataToTransmitPN,snrValues(j));
+            outPut = computeDelay("PN Code ",dataToTransmitPN,snrValues(j));
             differArray(i,j) = outPut(1);
             delayArray(i,j) = outPut(2);
         end
+
     end
 end
+
+snrValues = snrValues(1:11);
+
+figure();
+subplot(2,1,1)
+plot(snrValues,differArray(1,1:11),'m--*',snrValues,differArray(2,1:11),"b-o",snrValues,differArray(3,1:11),"k:sq");
+xlabel('SNR (dB)');ylabel('Diff');
+axis([-40 30 0 1]);
+grid on;
+title("Diff b/w 1st and 2nd Max correlation coefficient w.r.t to SNR ");
+legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best');
+
+subplot(2,1,2)
+plot(snrValues,delayArray(1,1:11),'m--*',snrValues,delayArray(2,1:11),"b-o",snrValues,delayArray(3,1:11),"k:sq");
+xlabel('SNR (dB)');ylabel('Diff');
+title("Delay w.r.t to SNR ");
+axis([-40 30 0 20]);  xlabel('SNR (dB)'); ylabel('Delay (ms)');
+xticks(-40:10:30); yticks(0:2:20);
+grid on;
+legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best');
+
 end
 
 
@@ -121,21 +149,6 @@ yp=awgn(yo,snr,'measured');
 % Plot data
 sig = upsample(dataToTransmitmodified,4);
 
-if (snr == 10||snr == -20)
-    figure();
-    ax=gca;
-    ax.XTickMode = 'auto';
-    ax.XTickMode = 'auto';
-    Sigplot = stem(to,sig, 'mx'); hold on;
-    % Plot filtered data
-    FilterData = plot(to,yp, 'k--'); 
-    % Set axes and labels
-    title("Plot for " + name+ "sequence with SNR " + snr);
-    axis([0 23 -inf inf]);  xlabel('Time (ms)'); ylabel('Amplitude');
-    grid on;
-    legend([Sigplot,FilterData],'Data with delay', 'RRCFilter Output', 'Location', 'southeast')
-    hold off;
-end
 
 %Setting parameters for Root Raised Cosined Filter Fiter
 rxfilter  = comm.RaisedCosineReceiveFilter(...
@@ -151,58 +164,13 @@ yr = rxfilter(yp);
 
 %Downsampling the received data to get transmitted data
 receivedData = downsample(yr,4);
-
-% Plot filtered data.
-
-if (snr == 10||snr == -20)
-    figure();
-    ax=gca;
-    ax.XTickMode = 'auto';
-    ax.XTickMode = 'auto';
-    stem(mtx, receivedData, 'kx'); hold on;
-    % hold on
-    plot(to,yr, 'b--'); hold off;
-    % Set axes and labels.
-    title("Received data Plot for " + name + " sequence with SNR " + snr);
-    axis([0 25 -inf inf]);  xlabel('Time (ms)'); ylabel('Amplitude');
-    grid on;
-    legend('Received Data','Rcv Filter Output', 'Location', 'southeast');
-end
-
-if (snr == 10||snr == -20)
-    figure();
-    ax=gca;
-    ax.XTickMode = 'auto';
-    ax.XTickMode = 'auto';
-    stem(receivedData);
-    title("Extracted Data");
-    title("Plot for SNR" + snr);
-    xlabel("Symbol index");ylabel("Amplitude");
-    grid on;
-    axis([0 25 -inf inf])
-end    
+  
 
 % Correct for propagation delay by removing filter transients
 fltDelay = Nsym / (DataRate);
 yrCorreted = yr(fltDelay*sampleFrequency+1:end);
 receivedDataCorrected = downsample(yrCorreted,4);
 to = 1000 * (0: dataLength*sampsPerSym - 1) / sampleFrequency;
-
-if (snr == 100||snr == -20)
-    figure();
-    ax=gca;
-    ax.XTickMode = 'auto';
-    ax.XTickMode = 'auto';
-    plot(to,yrCorreted, 'r--'); hold on;
-    stem(tx,receivedDataCorrected,'kx');
-    % Set axes and labels.
-    axis([0 18 -inf inf]);  xlabel('Time (ms)'); ylabel('Amplitude');
-    grid on;
-    title("Extracted Original Data with corrected RRC output for " + name + " with SNR" + snr);
-    xlabel("Time (ms)");ylabel("Amplitude");
-    legend('Corrected Rcv Filter Output','Extracted Original Data', 'Location', 'southeast');
-end
-%calculating delay using correlation function 
 
 %constructing original wave form with Transmitter output
 fltDelay1 = Nsym /(2*DataRate);
@@ -212,7 +180,7 @@ outputWaveForm = downsample(yr,4);
 [c,lags] = xcorr(orignalWaveForm,outputWaveForm);
 c = normalize(c,'range');
 
-if (snr == 100||snr == -20)
+if (snr == -20||snr == inf)
     figure();
     stem(lags,c);
     ax=gca;
