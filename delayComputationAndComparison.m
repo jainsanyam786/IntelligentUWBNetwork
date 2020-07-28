@@ -8,8 +8,8 @@ snrValues = -30:5:25;
 DataRate = 1000;
 
 %creating data for random sequence [1 1 -1 1 1 -1 ....]
-dataToTransmitRN = ones(13,1);
-dataToTransmitRN(3:3:13)=-1;
+dataToTransmitRN = ones(16,1);
+dataToTransmitRN(3:3:16)=-1;
 
 
 %creating data for Barker code sequence 
@@ -19,7 +19,7 @@ dataToTransmitBR = -1*(barker());
 
 %creating data for PN code sequence
 pnSequence = comm.PNSequence('Polynomial','x^4+x+1',... 
-                'InitialConditions',[1 0 0 1],'SamplesPerFrame',13);
+                'InitialConditions',[1 0 0 1],'SamplesPerFrame',15);
 dataToTransmitPN = pnSequence();
 dataToTransmitPN (dataToTransmitPN == 0) = -1;
 
@@ -30,7 +30,7 @@ figure();
     subplot(3,1,1);
     tx = 1000 * (0: length(dataToTransmitRN) - 1) / DataRate;
     stem(tx,dataToTransmitRN);
-    title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 13)");
+    title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 16)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
     
@@ -44,7 +44,7 @@ figure();
     subplot(3,1,3);
     tx = 1000 * (0: length(dataToTransmitPN) - 1) / DataRate;
     stem(tx,dataToTransmitPN);
-    title("PN sequence (Symbols = 13)");
+    title("PN sequence (Symbols = 15)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
     
@@ -171,7 +171,6 @@ fltDelay = Nsym / (DataRate);
 yrCorreted = yr(fltDelay*sampleFrequency+1:end);
 receivedDataCorrected = downsample(yrCorreted,4);
 to = 1000 * (0: dataLength*sampsPerSym - 1) / sampleFrequency;
-
 %constructing original wave form with Transmitter output
 fltDelay1 = Nsym /(2*DataRate);
 orignalWaveForm1 = yo(fltDelay1*sampleFrequency+1:end);
@@ -187,13 +186,13 @@ if (snr == -20||snr == inf)
     ax.XTickMode = 'auto';
     ax.XTickMode = 'auto';
     title("Normalize Corrleation coffiecient with time delay for " + name + " sequence with SNR " + snr);
-    ylabel('Corrleation coffiecient)');xlabel('Time delay');
+    ylabel('Corrleation coffiecient');xlabel('Time delay');
     axis([-25 25 0 1.5]);
     grid on;
 end
 %Time at which coffiecient is maximum that gives delay.
 [~,index1] = max(c);
-disp("Delay is " + abs(lags(index1)) + "ms" + " for SNR " + snr);
+disp("Delay is " + abs(lags(index1)) + "ms for " + name +"sequence for SNR " + snr);
 
 d = sort(c,"descend");
 diff = d(1) - d(2);
