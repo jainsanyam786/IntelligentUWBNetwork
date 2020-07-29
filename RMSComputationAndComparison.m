@@ -1,7 +1,7 @@
 function RMSComputationAndComparison()
 
 global combinedDelayValue;
-snrValues = -30:5:25;
+snrValues = -30:2:25;
 interations = 1000;
 
 combinedDelayValue = zeros(3,length(snrValues),interations);
@@ -30,23 +30,32 @@ figure();
     subplot(3,1,1);
     tx = 1000 * (0: length(dataToTransmitRN) - 1) / DataRate;
     stem(tx,dataToTransmitRN);
-    title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 16)");
+    title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 16)",'FontSize',12);
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
+    axs = gca;   
+    axs.XAxis.FontSize = 12;
+    axs.YAxis.FontSize = 12;
     
     subplot(3,1,2);
     tx = 1000 * (0: length(dataToTransmitBR) - 1) / DataRate;
     stem(tx,dataToTransmitBR);
-    title("Barker sequence (Symbols = 13)");
+    title("Barker sequence (Symbols = 13)",'FontSize',12);
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
+    axs = gca;   
+    axs.XAxis.FontSize = 12;
+    axs.YAxis.FontSize = 12;
     
     subplot(3,1,3);
     tx = 1000 * (0: length(dataToTransmitPN) - 1) / DataRate;
     stem(tx,dataToTransmitPN);
-    title("PN sequence (Symbols = 15)");
+    title("PN sequence (Symbols = 15)",'FontSize',12);
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
+    axs = gca;   
+    axs.XAxis.FontSize = 12;
+    axs.YAxis.FontSize = 12;
     
 
 for  i  = 1:1:size(combinedDelayValue,1)
@@ -77,33 +86,45 @@ for i = 1:1:size(combinedDelayValue,1)
 end
 
 figure();
-subplot(3,1,1)
+ax = gca;
+ax.XAxis.FontSize = 12;
+ax.YAxis.FontSize = 12;
+ax.XTickMode = 'auto';
+ax.XTickMode = 'auto';
+subplot(2,1,1)
 plot(snrValues,combinedmeanAbsError(1,:),'m--*',snrValues,combinedmeanAbsError(2,:),"b-o",snrValues,combinedmeanAbsError(3,:),"k:sq");
+% semilogy(snrValues,combinedmeanAbsError(1,:),'m--*',snrValues,combinedmeanAbsError(2,:),"b-o",snrValues,combinedmeanAbsError(3,:),"k:sq");
+% semilogy(snrValues,max(eps,combinedmeanAbsError(1,:)),'m--*',snrValues,combinedmeanAbsError(2,:),"b-o",snrValues,combinedmeanAbsError(3,:),"k:sq");
 xlabel('SNR (dB)');ylabel('Mean Absolute Error (ms)');
 axis([-40 30 0 5]);
 title("Mean absolute error for a Random, Barker and PN Sequence w.r.t to SNR ");
 grid on;
-legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best',"Linewidth",1.5);
+legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best',"Linewidth",1.5,'FontSize',12);
 
-subplot(3,1,2)
+subplot(2,1,2)
 plot(snrValues,combinedRMSE(1,:),'m--*',snrValues,combinedRMSE(2,:),"b-o",snrValues,combinedRMSE(3,:),"k:sq");
 xlabel('SNR (dB)');ylabel('RMSE (ms)');
 title("RMSE for a Random, Barker and PN Sequence w.r.t to SNR ");
+% ax = gca;
+% ax.XAxis.FontSize = 12;
+% ax.YAxis.FontSize = 12;
+% ax.XTickMode = 'auto';
+% ax.XTickMode = 'auto';
 axis([-40 30 0 5]);
-xticks(-40:10:30);
 grid on;
-legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best',"Linewidth",1.5);
+legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best',"Linewidth",1.5,'FontSize',12);
 
 
-subplot(3,1,3)
-plot(snrValues,combinedStdOfError(1,:),'m--*',snrValues,combinedStdOfError(2,:),"b-o",snrValues,combinedStdOfError(3,:),"k:sq");
-xlabel('SNR (dB)');ylabel('Standard Deviation (ms)');
-title("Delay w.r.t to SNR ");
-title("Standard Deviation for Error for a Random, Barker and PN Sequence w.r.t to SNR ");
-axis([-40 30 0 5]);
-xticks(-40:10:30);
-grid on;
-legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best',"Linewidth",1.5);
+% subplot(3,1,3)
+% plot(snrValues,combinedStdOfError(1,:),'m--*',snrValues,combinedStdOfError(2,:),"b-o",snrValues,combinedStdOfError(3,:),"k:sq");
+% xlabel('SNR (dB)');ylabel('Standard Deviation (ms)');
+% title("Delay w.r.t to SNR ");
+% title("Standard Deviation for Error for a Random, Barker and PN Sequence w.r.t to SNR ");
+% axis([-40 30 0 5]);
+% xticks(-40:10:30);
+% grid on;
+% legend("Random Sequence","Barker Sequence","PN Sequence",'Location', 'best',"Linewidth",1.5);
+
 end
 
 function updatedelay(dTTrans,snr,i,j)

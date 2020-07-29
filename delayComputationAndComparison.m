@@ -33,6 +33,9 @@ figure();
     title("Random [ 1 1 -1 1 -1 -1 ..] sequence (Symbols = 16)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
+    axs = gca;   
+    axs.XAxis.FontSize = 12;
+    axs.YAxis.FontSize = 12;
     
     subplot(3,1,2);
     tx = 1000 * (0: length(dataToTransmitBR) - 1) / DataRate;
@@ -40,6 +43,9 @@ figure();
     title("Barker sequence (Symbols = 13)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
+    axs = gca;   
+    axs.XAxis.FontSize = 12;
+    axs.YAxis.FontSize = 12;
     
     subplot(3,1,3);
     tx = 1000 * (0: length(dataToTransmitPN) - 1) / DataRate;
@@ -47,7 +53,9 @@ figure();
     title("PN sequence (Symbols = 15)");
     xlabel("Time (ms)");ylabel("Amplitude");
     axis(ax);
-    
+    axs = gca;   
+    axs.XAxis.FontSize = 12;
+    axs.YAxis.FontSize = 12;
 
 
 
@@ -184,9 +192,11 @@ if (snr == -20||snr == inf)
     stem(lags,c);
     ax=gca;
     ax.XTickMode = 'auto';
-    ax.XTickMode = 'auto';
-    title("Normalize Corrleation coffiecient with time delay for " + name + " sequence with SNR " + snr);
-    ylabel('Corrleation coffiecient');xlabel('Time delay');
+    ax.XTickMode = 'auto';  
+    ax.XAxis.FontSize = 12;
+    ax.YAxis.FontSize = 12;
+    title("Normalize Correlation coefficient with time delay for " + name + " sequence with SNR " + snr);
+    ylabel('Correlation coefficient');xlabel('Time delay');
     axis([-25 25 0 1.5]);
     grid on;
 end
