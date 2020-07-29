@@ -118,12 +118,7 @@ DataRate = 1000;
 %sampling frequency
 sampleFrequency = DataRate * sampsPerSym;
 dataToTransmit = dTTrans;
-dataLength=length(dataToTransmit);
-tx = 1000 * (0: dataLength - 1) / DataRate;
-
 dataToTransmitmodified = [dataToTransmit;(zeros(6,1))];
-modifiedDatalength = length(dataToTransmitmodified);
-
 % Scaling the sequence, so that the mean power of a transmitted symbol
 % is one
 scalinFactor = 1/sqrt(mean(abs(dataToTransmitmodified).^2));
@@ -142,21 +137,11 @@ txfilter = comm.RaisedCosineTransmitFilter(...
 b = coeffs(txfilter);
 txfilter.Gain = 1/max(b.Numerator);
 
-% Time vector sampled at symbol rate in milliseconds
-mtx = 1000 * (0: modifiedDatalength - 1) / DataRate;
-% Visualize the impulse response
-% fvtool(rctFilt, 'Analysis', 'impulse');
-
-% Time vector sampled at sampling frequency in milliseconds
-to = 1000 * (0: modifiedDatalength*sampsPerSym - 1) / sampleFrequency;
 
 yo = txfilter(dataToTransmitmodified);
 
 %AWGNoise
 yp=awgn(yo,snr,'measured');
-% Plot data
-sig = upsample(dataToTransmitmodified,4);
-
 
 %Setting parameters for Root Raised Cosined Filter Fiter
 rxfilter  = comm.RaisedCosineReceiveFilter(...
@@ -170,15 +155,6 @@ rxfilter.Gain = 1/txfilter.Gain;
 
 yr = rxfilter(yp);
 
-%Downsampling the received data to get transmitted data
-receivedData = downsample(yr,4);
-  
-
-% Correct for propagation delay by removing filter transients
-fltDelay = Nsym / (DataRate);
-yrCorreted = yr(fltDelay*sampleFrequency+1:end);
-receivedDataCorrected = downsample(yrCorreted,4);
-to = 1000 * (0: dataLength*sampsPerSym - 1) / sampleFrequency;
 %constructing original wave form with Transmitter output
 fltDelay1 = Nsym /(2*DataRate);
 orignalWaveForm1 = yo(fltDelay1*sampleFrequency+1:end);
